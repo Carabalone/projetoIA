@@ -71,16 +71,19 @@ class Board:
         read = sys.stdin.read()
         print("read " + read + " from stdin")
         board = [[] for x in range(int(read[0]))]
-        print(len(read[1:]))
-        for index, line in enumerate(read[1:]):
-            print(line)
-            board[index] += [line]
+        print(read[2:-1].split('\n'))
+        for index, line in enumerate(read[2:-1].split('\n')):
+            board[index] += [int(x) for x in line.split('\t')]
         return Board(board)
 
     def __str__(self):
         print(self.board)
+        string = ""
         for row in self.board:
-            print(row, sep="\t")
+            for element in row:
+                string += str(element) + '\t'
+            string += '\n'
+        return string
     # TODO: outros metodos da classe
 
 
