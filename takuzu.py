@@ -46,9 +46,9 @@ class Board:
         respectivamente."""
         lines = len(self.board) - 1
         if row == 0:
-            return (self.board[row + 1][col])
+            return self.board[row + 1][col], None
         elif row == lines:
-            return (self.board[row - 1][col])
+            return None, self.board[row - 1][col]
         return self.board[row + 1][col], self.board[row - 1][col]
 
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
@@ -56,9 +56,9 @@ class Board:
         respectivamente."""
         cols = len(self.board) - 1
         if col == 0:
-            return (self.board[row][col + 1])
+            return None, self.board[row][col + 1]
         elif col == cols:
-            return (self.board[row][col - 1])
+            return self.board[row][col - 1], None
         return self.board[row][col - 1], self.board[row][col + 1]
 
     @staticmethod
@@ -81,7 +81,7 @@ class Board:
         print(read[2:-1].split('\n'))
         for index, line in enumerate(read[2:-1].split('\n')):
             board[index] += [int(x) for x in line.split('\t')]
-        return Board(board)
+        return Board(tuple(board))
 
     def __str__(self):
         print(self.board)
