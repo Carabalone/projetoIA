@@ -39,20 +39,27 @@ class Board:
     
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
-
+        return self.board[row][col]
+    
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
-        # TODO
-        pass
+        lines = len(self.board) - 1
+        if row == 0:
+            return (self.board[row + 1][col])
+        elif row == lines:
+            return (self.board[row - 1][col])
+        return self.board[row + 1][col], self.board[row - 1][col]
 
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        # TODO
-        pass
+        cols = len(self.board) - 1
+        if col == 0:
+            return (self.board[row][col + 1])
+        elif col == cols:
+            return (self.board[row][col - 1])
+        return self.board[row][col - 1], self.board[row][col + 1]
 
     @staticmethod
     def parse_instance_from_stdin():
