@@ -113,7 +113,7 @@ class Takuzu(Problem):
         self.actions(state)."""
         row, col, val = action[0], action[1], action[2]
         state.board[row][col] = val
-        return state.board
+        return state
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
