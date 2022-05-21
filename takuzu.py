@@ -44,8 +44,8 @@ class Board:
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
-        lines = len(self.board) - 1
-        if row == 0:
+        lines = len(self.board)
+        if row == 1:
             return self.board[row + 1][col], None
         elif row == lines:
             return None, self.board[row - 1][col]
@@ -54,8 +54,8 @@ class Board:
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        cols = len(self.board) - 1
-        if col == 0:
+        cols = len(self.board)
+        if col == 1:
             return None, self.board[row][col + 1]
         elif col == cols:
             return self.board[row][col - 1], None
@@ -111,8 +111,9 @@ class Takuzu(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO
-        pass
+        row, col, val = action[0], action[1], action[2]
+        state.board[row][col] = val
+        return state.board
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
