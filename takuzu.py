@@ -7,6 +7,8 @@
 # 00000 Nome2
 
 import sys
+
+import numpy
 from search import (
     Problem,
     Node,
@@ -92,6 +94,22 @@ class Board:
             string += '\n'
         return string
     # TODO: outros metodos da classe
+    
+    def check_lines(self):
+        board = numpy.matrix(self.board)
+        for line in board:
+            if ((board == line.all())):     #Se houver uma linha igual à atual
+                return False
+        return True
+    
+    def check_cols(self):
+        board = numpy.matrix(self.board)
+        board = numpy.transpose(board)
+        for col in board:
+            if ((board == col.all())):     #Se houver uma coluna igual à atual
+                return False
+        return True
+        
 
 
 class Takuzu(Problem):
