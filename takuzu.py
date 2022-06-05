@@ -96,17 +96,18 @@ class Board:
     # TODO: outros metodos da classe
     
     def check_lines(self):
-        board = numpy.matrix(self.board)
-        for line in board:
-            if ((board == line.all())):     #Se houver uma linha igual à atual
+        board = self.board
+        for row in range(len(board)):
+            rows = board[:row] + board[row+1:]    #Remove a linha atual
+            if any(numpy.array_equal(row, line) for line in rows):
                 return False
         return True
     
     def check_cols(self):
-        board = numpy.matrix(self.board)
-        board = numpy.transpose(board)
-        for col in board:
-            if ((board == col.all())):     #Se houver uma coluna igual à atual
+        board = numpy.transpose(self.board)
+        for col in range(len(board)):
+            cols = board[:col] + board[col+1:]    #Remove a coluna atual
+            if any(numpy.array_equal(col, column) for column in cols):
                 return False
         return True
     
