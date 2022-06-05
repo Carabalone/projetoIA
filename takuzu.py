@@ -109,8 +109,13 @@ class Board:
             if ((board == col.all())):     #Se houver uma coluna igual à atual
                 return False
         return True
+    
+    def check_adjacent(self, value, row, col):
+        vertical = self.adjacent_vertical_numbers(self, row, col)
+        horizontal = self.adjacent_horizontal_numbers(self, row, col)
+        adjacent = numpy.array(vertical + horizontal)
+        return (adjacent==value).any()
         
-
 
 class Takuzu(Problem):
     def __init__(self, board: Board):
