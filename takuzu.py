@@ -96,33 +96,54 @@ class Board:
     # TODO: outros metodos da classe
     
     def check_lines(self):
-        board = self.board
-        for row in range(len(board)):
-            rows = board[:row] + board[row+1:]    #Remove a linha atual
-            if any(numpy.array_equal(row, line) for line in rows):
+        count = {}
+        for row in self.board:
+            if row not in count:
+                count[row] = 1
+            else:
                 return False
         return True
     
     def check_cols(self):
         board = numpy.transpose(self.board)
-        for col in range(len(board)):
-            cols = board[:col] + board[col+1:]    #Remove a coluna atual
-            if any(numpy.array_equal(col, column) for column in cols):
+        count = {}
+        for col in board:
+            if col not in count:
+                count[col] = 1
+            else:
                 return False
         return True
     
-    def check_adjacent(self, value, row, col):
+    def check_adjacent(self, val, row, col):
         vertical = self.adjacent_vertical_numbers(self, row, col)
         horizontal = self.adjacent_horizontal_numbers(self, row, col)
         adjacent = numpy.array(vertical + horizontal)
-        return (adjacent==value).any()
+        return (adjacent==val).any()
         
+    def check_zero_one(self):
+        count, board = {}, numpy.matrix(self.board)
+        n = board[0].size
+        
+        for row in self.board:
+            row = numpy.array(row)
+            zeros, ones = (row==0).sum(), (row==1).sum()
+            if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones != 1)):
+                return False
+        
+        count, board = {}, numpy.transpose(self.board)
+        
+        for col in board:
+            col = numpy.array(col)
+            zeros, ones = (row==0).sum(), (row==1).sum()
+            if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones != 1)):
+                return False
+            
+        return True
 
 class Takuzu(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
-        pass
+        self.initial = board
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
