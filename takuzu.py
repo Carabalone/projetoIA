@@ -108,11 +108,17 @@ class Board:
         u, c = numpy.unique(board, axis=1, return_counts=True)
         return (c>1).any()
     
-    def check_adjacent(self, val, row, col):
-        vertical = self.adjacent_vertical_numbers(self, row, col)
-        horizontal = self.adjacent_horizontal_numbers(self, row, col)
-        adjacent = numpy.array(vertical + horizontal)
-        return (adjacent==val).any()
+    def check_adjacent(self):
+        for line in self.board:
+            for i in range(self.len - 2):
+                if (line[i]==1 or line[i] == 2) and line[i] == line[i + 1] == line[i + 2]:
+                    return False
+        for line in range(self.len):
+            for i in range(self.len - 2):
+                if (self.board[line][i]==1 or self.board[line][i] == 2) and\
+                     self.board[line][i] == self.board[line][i + 1] == self.board[line][i + 2]:
+                    return False
+        return True
         
     def check_zero_one(self):
         count, board = {}, numpy.matrix(self.board)
@@ -165,18 +171,8 @@ class Takuzu(Problem):
         if not board.check_zero_one():
             return False
 
-        #checking adjacent
-        for i in range(0, state.len, 2):
-                for j in range(0, state.len, 2):
-                    if(state.board.check_adjacent(0, i, j) and state.board.check_adjacent(1, i,j)):
-                        return False
-
-        if (state.len % 2 == 0):
-            for i in range (state.len):
-                if(state.board.check_adjacent(0, state.len-1, j) and\
-                     state.board.check_adjacent(1, state.len-1,j)):
-                     return False
-        return True
+        if not board.check_adjacent():
+            return False
 
 
             
@@ -202,4 +198,5 @@ if __name__ == "__main__":
     state = TakuzuState(board)
 
     #uncomment this if you're testing
-    #assert(takuzu.goal_test(state) == False)
+    #for i in range(1000):
+        #assert(takuzu.goal_test(state) == False)

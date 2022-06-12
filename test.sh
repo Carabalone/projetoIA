@@ -4,6 +4,6 @@ for f in $FILES
 do
     echo "Testing $f..."
 
-    python3 takuzu.py < $f
+    time (python3 takuzu.py < $f) | echo
 done
 echo "Done."
