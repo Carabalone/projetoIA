@@ -38,6 +38,7 @@ class Board:
     """Representação interna de um tabuleiro de Takuzu."""
     def __init__(self, board: tuple):
         self.board = board
+        self.len = len(board)
     
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -46,7 +47,7 @@ class Board:
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
-        lines = len(self.board)
+        lines = self.len
         if row == 1:
             return self.board[row + 1][col], None
         elif row == lines:
@@ -56,7 +57,7 @@ class Board:
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        cols = len(self.board)
+        cols = self.len
         if col == 1:
             return None, self.board[row][col + 1]
         elif col == cols:
@@ -78,15 +79,17 @@ class Board:
 
         #not ready yet
         read = sys.stdin.read()
-        print("read " + read + " from stdin")
-        board = [[] for x in range(int(read[0]))]
-        print(read[2:-1].split('\n'))
-        for index, line in enumerate(read[2:-1].split('\n')):
+        #print("read " + read + " from stdin")
+        board = [[] for x in range(int(read.split("\n")[0]))]
+        #print(read.split("\n"))
+        #print(read.split('\n')[1:-1])
+        for index, line in enumerate(read.split('\n')[1:-1]):
+            #print(index, line.split('\t'))
             board[index] += [int(x) for x in line.split('\t')]
         return Board(tuple(board))
 
     def __str__(self):
-        print(self.board)
+        #print(self.board)
         string = ""
         for row in self.board:
             for element in row:
@@ -96,23 +99,14 @@ class Board:
     # TODO: outros metodos da classe
     
     def check_lines(self):
-        count = {}
-        for row in self.board:
-            if row not in count:
-                count[row] = 1
-            else:
-                return False
-        return True
+        board = numpy.transpose(self.board)
+        u, c = numpy.unique(board, axis=0, return_counts=True)
+        return (c>1).any()
     
     def check_cols(self):
         board = numpy.transpose(self.board)
-        count = {}
-        for col in board:
-            if col not in count:
-                count[col] = 1
-            else:
-                return False
-        return True
+        u, c = numpy.unique(board, axis=1, return_counts=True)
+        return (c>1).any()
     
     def check_adjacent(self, val, row, col):
         vertical = self.adjacent_vertical_numbers(self, row, col)
@@ -164,8 +158,28 @@ class Takuzu(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        # TODO
-        pass
+        board = state.board
+        if not (board.check_cols() and board.check_lines()):
+            return False
+
+        if not board.check_zero_one():
+            return False
+
+        #checking adjacent
+        for i in range(0, state.len, 2):
+                for j in range(0, state.len, 2):
+                    if(state.board.check_adjacent(0, i, j) and state.board.check_adjacent(1, i,j)):
+                        return False
+
+        if (state.len % 2 == 0):
+            for i in range (state.len):
+                if(state.board.check_adjacent(0, state.len-1, j) and\
+                     state.board.check_adjacent(1, state.len-1,j)):
+                     return False
+        return True
+
+
+            
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -182,4 +196,10 @@ if __name__ == "__main__":
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance_from_stdin()
-    print(str(board))
+    #print(str(board))
+    #print(type(board))
+    takuzu = Takuzu(board)
+    state = TakuzuState(board)
+
+    #uncomment this if you're testing
+    #assert(takuzu.goal_test(state) == False)
