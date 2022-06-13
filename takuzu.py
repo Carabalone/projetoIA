@@ -99,12 +99,10 @@ class Board:
     # TODO: outros metodos da classe
     
     def check_lines(self):
-        board = numpy.transpose(self.board)
         u, c = numpy.unique(board, axis=0, return_counts=True)
         return (c>1).any()
     
     def check_cols(self):
-        board = numpy.transpose(self.board)
         u, c = numpy.unique(board, axis=1, return_counts=True)
         return (c>1).any()
     
@@ -124,8 +122,7 @@ class Board:
         count, board = {}, numpy.matrix(self.board)
         n = board[0].size
         
-        for row in self.board:
-            row = numpy.array(row)
+        for row in board:
             zeros, ones = (row==0).sum(), (row==1).sum()
             if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones != 1)):
                 return False
@@ -133,7 +130,6 @@ class Board:
         count, board = {}, numpy.transpose(self.board)
         
         for col in board:
-            col = numpy.array(col)
             zeros, ones = (row==0).sum(), (row==1).sum()
             if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones != 1)):
                 return False
@@ -165,17 +161,8 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         board = state.board
-        if not (board.check_cols() and board.check_lines()):
-            return False
-
-        if not board.check_zero_one():
-            return False
-
-        if not board.check_adjacent():
-            return False
-
-
-            
+        return board.check_cols(board) and board.check_lines(board) \
+            and board.check_zero_one(board) and board.check_adjacent(board)
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
