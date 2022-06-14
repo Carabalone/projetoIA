@@ -8,6 +8,7 @@
 
 from copy import deepcopy
 import sys
+import math
 
 import numpy
 from search import (
@@ -140,15 +141,13 @@ class Board:
             for row in board:
                 zeros, ones = numpy.where(row==0)[0].size, numpy.where(row==1)[0].size
                 #print(f"row: {row}, zeros {zeros}, ones {ones}")
-                if (n%2 == 0 and (zeros > n//2 or ones > n//2)) \
-                    or (n%2 != 0 and (zeros > n//2 + 1 or ones > n//2 + 1)):
+                if (n%2 == 0 and (zeros > n//2 or ones > n//2)):
                     return False
         
             for col in board.T:
                 zeros, ones = numpy.where(col==0)[0].size, numpy.where(col==1)[0].size
                 #print(f"col: {col}, zeros {zeros}, ones {ones}")
-                if (n%2 == 0 and (zeros > n//2 or ones > n//2)) \
-                    or (n%2 != 0 and (zeros > n//2 + 1 or ones > n//2 + 1)):
+                if ((zeros > math.ceil(n/2) or ones > math.ceil(n/2))):
                     return False
             
         return True
