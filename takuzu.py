@@ -50,9 +50,9 @@ class Board:
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
         lines = self.len
-        if row == 1:
+        if row == 0:
             return self.board[row + 1][col], None
-        elif row == lines:
+        elif row == lines-1:
             return None, self.board[row - 1][col]
         return self.board[row + 1][col], self.board[row - 1][col]
 
@@ -60,11 +60,14 @@ class Board:
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
         cols = self.len
-        if col == 1:
+        if col == 0:
             return None, self.board[row][col + 1]
-        elif col == cols:
+        elif col == cols-1:
             return self.board[row][col - 1], None
         return self.board[row][col - 1], self.board[row][col + 1]
+
+    def __contains__(self, number: int):
+        return number in self.board
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -96,18 +99,19 @@ class Board:
     # TODO: outros metodos da classe
     
     def check_lines(self):
-        u, c = numpy.unique(board.board, axis=0, return_counts=True)
+        u, c = numpy.unique(self.board, axis=0, return_counts=True)
         return (c>1).any()
     
     def check_cols(self):
-        u, c = numpy.unique(board.board, axis=1, return_counts=True)
+        u, c = numpy.unique(self.board, axis=1, return_counts=True)
         return (c>1).any()
     
     def check_row_and_col(self):
-        for i in range(board.len):  # generate pairs
-            for j in range(i + 1, board.len): 
-                if numpy.array_equal(board.board[i], board.board[j]):  # compare rows
-                    if numpy.array_equal(board.board[:,i], board.board[:,j]):  # compare columns
+        matrix = numpy.matrix(self.board)
+        for i in range(self.len):  # generate pairs
+            for j in range(i + 1, self.len): 
+                if numpy.array_equal(matrix[i], matrix[j]):  # compare rows
+                    if numpy.array_equal(matrix[:,i], matrix[:,j]):  # compare columns
                         return False
         return True
 
@@ -130,43 +134,64 @@ class Board:
         if (full):
             for row in board:
                 zeros, ones = numpy.where(row==0)[0].size, numpy.where(row==1)[0].size
-                if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones != 1)):
+                if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones) != 1):
                     return False
         
             for col in board.T:
                 zeros, ones = numpy.where(col==0)[0].size, numpy.where(col==1)[0].size
-                if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones != 1)):
+                if (n%2 == 0 and zeros != ones) or (n%2 != 0 and abs(zeros-ones) != 1):
                     return False
         else:
             for row in board:
                 zeros, ones = numpy.where(row==0)[0].size, numpy.where(row==1)[0].size
-                #print(f"row: {row}, zeros {zeros}, ones {ones}")
-                if (n%2 == 0 and (zeros > n//2 or ones > n//2)):
+                print(f"row: {row}, zeros {zeros}, ones {ones}")
+                if (n%2 == 0 and (zeros > n//2 or ones > n//2)) \
+                    or (n%2 != 0 and (zeros > n//2 + 1 or ones > n//2 + 1)):
                     return False
         
             for col in board.T:
                 zeros, ones = numpy.where(col==0)[0].size, numpy.where(col==1)[0].size
-                #print(f"col: {col}, zeros {zeros}, ones {ones}")
-                if ((zeros > math.ceil(n/2) or ones > math.ceil(n/2))):
+                print(f"col: {col}, zeros {zeros}, ones {ones}")
+                if (n%2 == 0 and (zeros > n//2 or ones > n//2)) \
+                    or (n%2 != 0 and (zeros > n//2 + 1 or ones > n//2 + 1)):
                     return False
             
         return True
 
+    def check_zero_one_part(self, row, col):
+        n = row.size
+        one, zero = 0,0
+        for i in self.board[row]:
+            if i == 0:
+                zero += 1
+            elif i == 1:
+                one += 1
+        if (one > math.ceil(n/2) or zero > math.ceil(n/2)):
+            return False
+
+        one, zero = 0,0
+        for i in self.board[col]:
+            if i == 0:
+                zero += 1
+            elif i == 1:
+                one += 1
+        if (one > math.ceil(n/2) or zero > math.ceil(n/2)):
+            return True
+
     def generate_possibilities(self):
-        result = numpy.argwhere(numpy.array(board.board) == 2)
+        result = numpy.argwhere(numpy.array(self.board) == 2)
         actions = [(x[0], x[1], y) for y in (0,1) for x in result]
         return actions
 
 class Takuzu(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        self.initial = board
+        self.initial = TakuzuState(board)
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         actions = state.board.generate_possibilities()
-        print(f"actions before patch: \n{actions}")
         actions = self.patch_illegal(state, actions)
         return actions
 
@@ -176,6 +201,7 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         row, col, val = action[0], action[1], action[2]
+        #state.board.board[row][col]=val
         result_board = deepcopy(state.board.board)
         result_board[row][col] = val
         return TakuzuState(Board(result_board))
@@ -185,8 +211,8 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         board = state.board
-        return 2 not in state.board.board and board.check_row_and_col \
-            and board.check_zero_one() and board.check_adjacent()
+        return 2 not in board and board.check_row_and_col() \
+            and board.check_zero_one(full=True) and board.check_adjacent()
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -196,6 +222,7 @@ class Takuzu(Problem):
     def patch_illegal(self, state: TakuzuState, arr: list):
         """Given a list containing actions, it removes the illegal moves."""
         arr = list(arr)
+        print(arr)
         for action in arr:
             res = self.result(state, action)
             board_res = res.board
@@ -204,8 +231,13 @@ class Takuzu(Problem):
             if (not (board_res.check_zero_one(full=False) and board_res.check_row_and_col())):
                 #print("entrou")
                 arr.remove(action)
+                print(action)
 
         return arr
+    def search(self):
+        
+        return depth_first_tree_search(self)
+        pass
     # TODO: outros metodos da classe
 
 
@@ -217,8 +249,14 @@ if __name__ == "__main__":
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance_from_stdin()
     takuzu = Takuzu(board)
+    #print(type(takuzu.initial))
     state = TakuzuState(board)
 
-    print("Board:")
-    print(state.board)
-    print(f"actions after patch: \n{takuzu.actions(state)}")
+    res = takuzu.search()
+    if (res):
+        print(res.state.board)
+    else:
+        print("None")
+    #bred = Board([[2,2,0,1],[1,0,2,1],[0,2,1,0],[1,2,1,2]])
+    #ugh = takuzu.patch_illegal(TakuzuState(bred), bred.generate_possibilities())
+    #print(bred, bred.generate_possibilities())
