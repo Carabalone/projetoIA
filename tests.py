@@ -39,7 +39,44 @@ class TestBoard(ut.TestCase):
         bd = tz.Board([[1,1,0,0],[2,2,2,2],
                     [2,0,1,1],[2,0,1,1]])
         self.assertTrue(bd.check_over_half() == True)
+    
+    def testZeroOnePair(self):
+        bd = tz.Board([[1,1,1,1],[1,1,1,1],
+                        [0,2,1,0],[0,2,1,2]])
+        self.assertFalse(bd.check_zero_one())
+        bd = tz.Board([[0,0,1,1],[0,0,1,1],
+                        [0,0,1,1],[0,0,1,1]])
+        self.assertFalse(bd.check_zero_one())
+        bd = tz.Board([[0,1,0,1],
+                       [1,0,1,0],
+                       [0,1,0,1],
+                       [1,0,1,0]])
+        self.assertTrue(bd.check_zero_one())
+        bd = tz.Board([[0,1,2,1],
+                       [1,0,1,0],
+                       [0,1,0,1],
+                       [1,0,1,0]])
+        self.assertRaises(ValueError, bd.check_zero_one)
 
+    def testZeroOneOdd(self):
+        bd = tz.Board([[1,1,1,0,1],[1,1,1,1,1],
+                        [0,2,1,0,1],[0,2,1,2,1], [0,0,1,1,0]])
+        self.assertFalse(bd.check_zero_one())
+        bd = tz.Board([[0,0,1,1],[0,0,1,1],
+                        [0,0,1,1],[0,0,1,1], [1,0,1,1]])
+        self.assertFalse(bd.check_zero_one())
+        bd = tz.Board([[0,1,0,1,1],
+                       [1,0,1,0,1],
+                       [0,1,0,1,1],
+                       [1,0,1,0,0],
+                       [1,0,1,0,0]])
+        self.assertTrue(bd.check_zero_one())
+        bd = tz.Board([[0,1,2,1,1],
+                       [1,0,1,1,0],
+                       [0,1,0,1,1],
+                       [1,0,1,0,1],
+                       [1,0,1,0,1]])
+        self.assertRaises(ValueError, bd.check_zero_one)
 
         
 

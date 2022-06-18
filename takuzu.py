@@ -153,7 +153,33 @@ class Board:
 
 
     def check_zero_one(self):
-        pass
+        for line in self.board:
+            count = {0: 0, 1: 0}
+            for el in line:
+                if (el == 2):
+                    raise ValueError("non full board being zero-one-checked")
+                if el in (0,1):
+                    count[el] += 1
+            if self.len % 2 == 0:
+                if (abs(count[0]-count[1]) > 0):
+                    return False
+            elif (abs(count[0]-count[1]) > 1):
+                return False
+        
+        for line in zip(*self.board):
+            count = {0: 0, 1: 0}
+            for el in line:
+                if (el == 2):
+                    raise ValueError("non full board being zero-one-checked")
+                if el in (0,1):
+                    count[el] += 1
+            if self.len % 2 == 0:
+                if (abs(count[0]-count[1]) > 0):
+                    return False
+            elif (abs(count[0]-count[1]) > 1):
+                return False
+        
+        return True
 
     def generate_possibilities(self):
         result = numpy.argwhere(numpy.array(self.board) == 2)
