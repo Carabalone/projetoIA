@@ -93,10 +93,10 @@ class Node:
 
     def expand(self, problem):
         """List the nodes reachable in one step from this node."""
-        print("************BEGIN****************")
-        print(self.state.board)
-        print(f"act: {problem.actions(self.state)}")
-        print("************END****************")
+        #print("************BEGIN****************")
+        #print(self.state.board)
+        #print(f"act: {problem.actions(self.state)}")
+        #print("************END****************")
         return [self.child_node(problem, action)
                 for action in problem.actions(self.state)]
 
@@ -210,10 +210,11 @@ def depth_first_tree_search(problem):
     frontier = [Node(problem.initial)]  # Stack
     i=0
     while frontier:
-        print(f"Iteration: {i}")
+        #print(f"Iteration: {i}")
         i+=1
         node = frontier.pop()
         #print(node.state.board)
+        #print(f"chose: {node.action}")
         if problem.goal_test(node.state):
             return node
         frontier.extend(node.expand(problem))
