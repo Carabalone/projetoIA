@@ -66,7 +66,7 @@ class Board:
         return self.board[row][col - 1], self.board[row][col + 1]
 
     def __contains__(self, number: int):
-        return len([number in x for x in self.board]) > 0
+        return len([x for x in self.board if number in x]) > 0
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -135,10 +135,11 @@ class Board:
             if (self.len % 2 != 0):
                 if (count[1] > self.len//2 + 1 or count[0] > self.len//2 + 1):
                     return False
-            elif (count[1] > self.len//2 or count[0] > self.len//2):
+            else:
+                if (count[1] > self.len//2 or count[0] > self.len//2):
                     return False
 
-        for col in zip(*self.board):
+        for col in list(zip(*self.board)):
             count = {0: 0, 1: 0}
             for el in col:
                 if el in (0,1):
@@ -146,7 +147,8 @@ class Board:
             if (self.len % 2 != 0):
                 if (count[1] > self.len//2 + 1 or count[0] > self.len//2 + 1):
                     return False
-            elif (count[1] > self.len//2 or count[0] > self.len//2):
+            else:
+                if (count[1] > self.len//2 or count[0] > self.len//2):
                     return False
         
         return True
@@ -166,9 +168,9 @@ class Board:
             elif (abs(count[0]-count[1]) > 1):
                 return False
         
-        for line in zip(*self.board):
+        for col in zip(*self.board):
             count = {0: 0, 1: 0}
-            for el in line:
+            for el in col:
                 if (el == 2):
                     raise ValueError("non full board being zero-one-checked")
                 if el in (0,1):
@@ -204,7 +206,6 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         row, col, val = action[0], action[1], action[2]
-        #state.board.board[row][col]=val
         result_board = deepcopy(state.board.board)
         result_board[row][col] = val
         return TakuzuState(Board(result_board))
@@ -215,8 +216,25 @@ class Takuzu(Problem):
         estão preenchidas com uma sequência de números adjacentes."""
         board = state.board
         if 2 in board:
+            # print("rejeito pq 2 in board")
             return False
-        return board.check_lines() and board.check_cols() and board.check_zero_one(goal_test=True) and board.check_adjacent()
+        if (not board.check_over_half()):
+            # print("nao passou goal pq check over half")
+            return False
+        if (not board.check_cols()):
+            # print("nao passou goal pq check cols")
+            return False
+        if (not board.check_lines()):
+            # print("nao passou goal pq check lines")
+            return False
+        if (not board.check_adjacent()):
+            # print("nao passou goal pq check adj")
+            return False
+        if (not board.check_zero_one()):
+            # print("nao passou goal pq check zero one")
+            return False
+        return True
+        #return board.check_over_half() and board.check_lines() and board.check_cols() and board.check_zero_one() and board.check_adjacent()
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -226,25 +244,40 @@ class Takuzu(Problem):
     def patch_illegal(self, state: TakuzuState, arr: list):
         """Given a list containing actions, it removes the illegal moves."""
         arr = list(arr)
-        print(arr)
+        # print(f"patch illegal inicial: {arr}, len {len(arr)}")
+        i=0
+        temp = ()
         for action in arr:
+            i+=1
+            # print(f"act: {action}")
             res = self.result(state, action)
             board_res = res.board
-            if not (board_res.check_zero_one()): #and board_res.check_lines() and board_res.check_cols() and board_res.check_adjacent()):
-                #print("entrou")
-                arr.remove(action)
-                print(f"removeu: {action} zero one")
-            if not board_res.check_lines() and action in arr:
-                arr.remove(action)
-                print(f"removeu: {action} lines")
-            if not board_res.check_cols() and action in arr:
-                arr.remove(action)
-                print(f"removeu: {action} row")
-            if not board_res.check_adjacent() and action in arr:
-                arr.remove(action)
-                print(f"removeu: {action} adjacent")
+            if not (board_res.check_over_half()):
+                temp += (action,)
+                # print(f"removeu: {action} over half")
+                # print(f"pq resultado: \n{res.board}")
+            # if not board_res.check_lines() and action in arr:
+                # temp += (action,)
+                # print(f"removeu: {action} lines")
+                # print(f"pq resultado: \n{res.board}")
 
-        return arr
+                
+            # if not board_res.check_cols() and action in arr:
+                # temp += (action,)
+                # print(f"removeu: {action} row")
+                # print(f"pq resultado: \n{res.board}")
+
+                
+            # if not board_res.check_adjacent() and action in arr:
+                # temp += (action,)
+                # print(f"removeu: {action} adjacent")
+                # print(f"pq resultado: \n{res.board}")
+        
+        res = []
+        for item in arr:
+            if item not in temp:
+                res.append(item)
+        return res
     def search(self):
         return depth_first_tree_search(self)
     # TODO: outros metodos da classe
@@ -261,15 +294,11 @@ if __name__ == "__main__":
     #print(type(takuzu.initial))
     state = TakuzuState(board)
 
-    # res = takuzu.search()
-    # if (res):
-    #     print(res.state.board)
-    #     pass
-    # else:
-    #     print("None")
-    #     pass
-    bred = Board([[2,2,1,1],[1,0,2,1],[0,2,1,0],[1,2,1,2]])
-    print(bred.check_adjacent())
-    #ugh = takuzu.patch_illegal(TakuzuState(bred), bred.generate_possibilities())
-    #print(bred, bred.generate_possibilities())
-    #print(bred.check_adjacent())
+    res = takuzu.search()
+    if (res):
+        print(res.state.board)
+        # pass
+    else:
+        print("None")
+        # pass
+    #testb = Board([[2,2,1,1],[1,0,2,1],[0,2,1,0],[1,2,1,2]])

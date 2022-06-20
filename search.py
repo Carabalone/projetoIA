@@ -210,10 +210,14 @@ def depth_first_tree_search(problem):
     frontier = [Node(problem.initial)]  # Stack
     i=0
     while frontier:
-        #print(f"Iteration: {i}")
+        # print(f"Iteration: {i}")
         i+=1
         node = frontier.pop()
+        # print(f"node {i-1}: action{node.action}\n{node.state.board}")
         #print(node.state.board)
+
+        if 2 not in node.state.board:
+            print(node.state.board)
         #print(f"chose: {node.action}")
         if problem.goal_test(node.state):
             return node
