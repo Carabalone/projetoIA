@@ -11,7 +11,7 @@ import sys
 import math
 
 import numpy
-from regex import P
+# from regex import P
 from search import (
     Problem,
     Node,
@@ -96,12 +96,20 @@ class Board:
 
     #TODO as linhas não podem conter 2   (em teoria)  
     def check_lines(self):
-        u, c = numpy.unique(self.board, axis=0, return_counts=True)
+        board_w = []
+        for row in self.board:
+            if 2 not in row:
+                board_w += [row]
+        u, c = numpy.unique(board_w, axis=0, return_counts=True)
         return (c==1).all()
     
     #TODO as linhas não podem conter 2 (em teoria)    
     def check_cols(self):
-        u, c = numpy.unique(self.board, axis=1, return_counts=True)
+        board_w = []
+        for col in self.board:
+            if 2 not in col:
+                board_w += [col]
+        u, c = numpy.unique(board_w, axis=1, return_counts=True)
         return (c==1).all()
     
     #TODO ERRADO
@@ -187,6 +195,12 @@ class Board:
         result = numpy.argwhere(numpy.array(self.board) == 2)
         actions = [(x[0], x[1], y) for y in (0,1) for x in result]
         return actions
+    
+    def full_board(self):
+        for row in self.board:
+            if 2 in row:
+                return False
+        return True
 
 class Takuzu(Problem):
     def __init__(self, board: Board):
@@ -215,24 +229,24 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         board = state.board
-        if 2 in board:
+        if not board.full_board():
             # print("rejeito pq 2 in board")
             return False
-        if (not board.check_over_half()):
-            # print("nao passou goal pq check over half")
-            return False
-        if (not board.check_cols()):
+        # if (not board.check_over_half()):
+        #     # print("nao passou goal pq check over half")
+        #     return False
+        if not board.check_cols():
             # print("nao passou goal pq check cols")
             return False
         if (not board.check_lines()):
             # print("nao passou goal pq check lines")
             return False
-        if (not board.check_adjacent()):
-            # print("nao passou goal pq check adj")
-            return False
-        if (not board.check_zero_one()):
-            # print("nao passou goal pq check zero one")
-            return False
+        # if (not board.check_adjacent()):
+        #     # print("nao passou goal pq check adj")
+        #     return False
+        # if (not board.check_zero_one()):
+        #     # print("nao passou goal pq check zero one")
+        #     return False
         return True
         #return board.check_over_half() and board.check_lines() and board.check_cols() and board.check_zero_one() and board.check_adjacent()
 
@@ -252,8 +266,8 @@ class Takuzu(Problem):
             # print(f"act: {action}")
             res = self.result(state, action)
             board_res = res.board
-            if not (board_res.check_over_half()):
-                temp += (action,)
+            # if not (board_res.check_over_half()):
+            #     temp += (action,)
                 # print(f"removeu: {action} over half")
                 # print(f"pq resultado: \n{res.board}")
             # if not board_res.check_lines() and action in arr:
@@ -278,6 +292,7 @@ class Takuzu(Problem):
             if item not in temp:
                 res.append(item)
         return res
+    
     def search(self):
         return depth_first_tree_search(self)
     # TODO: outros metodos da classe
