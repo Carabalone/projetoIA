@@ -13,8 +13,10 @@ class TestBoard(ut.TestCase):
                         [0,2,1,0],[1,2,1,2]])
         self.assertTrue(bd.check_lines() == False)
         #self.assertTrue(bd.check_row_and_col() == False)
-        bd = tz.Board([[1,1,1,1],[1,0,1,1],
-                        [1,2,1,0],[1,2,1,2]])
+        bd = tz.Board([[1,1,1,1],
+                       [1,0,1,1],
+                       [1,2,1,0],
+                       [1,2,1,2]])
         self.assertTrue(bd.check_cols() == False)
         #self.assertTrue(bd.checkrow_and_col() == False)
         bd = tz.Board([[2,2,1,1],[1,0,2,1],[0,2,1,0],[1,2,1,2]])

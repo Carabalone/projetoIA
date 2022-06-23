@@ -1,0 +1,2 @@
+goal test só ver se o board tá cheio ou não
+generate possibilities tá na merda -> ver pos por pos
