@@ -2,7 +2,7 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo xx:
+# Grupo 35:
 # 99095 João Furtado
 # 99078 Guilherme Carabalone
 
@@ -46,7 +46,7 @@ class Board:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
     
-    def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
+    def adjacent_vertical_numbers(self, row: int, col: int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
         lines = self.len
@@ -56,7 +56,7 @@ class Board:
             return None, self.board[row - 1][col]
         return self.board[row + 1][col], self.board[row - 1][col]
 
-    def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
+    def adjacent_horizontal_numbers(self, row: int, col: int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
         cols = self.len
@@ -89,10 +89,12 @@ class Board:
     def __str__(self):
         string = ""
         for row in self.board:
-            for element in row:
-                string += str(element) + '\t'
-            string += '\n'
-        return string
+            for index, element in enumerate(row):
+                if index == self.len-1:
+                    string += str(element) + '\n'
+                else:
+                    string += str(element) + '\t'
+        return string[:-1]
 
     #TODO as linhas não podem conter 2   (em teoria)  
     def check_lines(self):
@@ -269,27 +271,13 @@ class Takuzu(Problem):
                 res.append(item)
         return res
     
-    def search(self):
-        return depth_first_tree_search(self)
-    # TODO: outros metodos da classe
-
-
+    
 if __name__ == "__main__":
     # TODO:
-    # Ler o ficheiro de input de sys.argv[1],
-    # Usar uma técnica de procura para resolver a instância,
-    # Retirar a solução a partir do nó resultante,
-    # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance_from_stdin()
     takuzu = Takuzu(board)
-    #print(type(takuzu.initial))
-    state = TakuzuState(board)
 
-    res = takuzu.search()
-    if (res):
-        print(str(res.state.board))
-        # pass
-    else:
-        print("None")
-        # pass
-    #testb = Board([[2,2,1,1],[1,0,2,1],[0,2,1,0],[1,2,1,2]])
+    goal_node = depth_first_tree_search(takuzu)
+    # print("Is goal?", takuzu.goal_test(goal_node.state))
+    # print("Solution:\n", goal_node.state.board, sep="")
+    print(str(goal_node.state.board))
