@@ -278,6 +278,7 @@ if __name__ == "__main__":
     takuzu = Takuzu(board)
 
     goal_node = depth_first_tree_search(takuzu)
-    # print("Is goal?", takuzu.goal_test(goal_node.state))
-    # print("Solution:\n", goal_node.state.board, sep="")
-    print(str(goal_node.state.board))
+    try:
+        print(str(goal_node.state.board))
+    except:
+        exit(2)
