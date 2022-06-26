@@ -62,7 +62,10 @@ class Board:
         return self.board[row][col - 1], self.board[row][col + 1]
 
     def __contains__(self, number: int):
-        return len([x for x in self.board if number in x]) > 0
+        for i in self.board:
+            if number in i:
+                return True
+        return False
     @staticmethod
     def parse_instance_from_stdin():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -95,42 +98,50 @@ class Board:
     #TODO as linhas não podem conter 2   (em teoria)  
     def check_lines(self):
         b = []
+        c=0
         for row in self.board:
-            if row not in b:
+            if row in b:
+                return False
+            else:    
                 b += [row]
-        return len(b) == self.len
+                c += 1
+        return c == self.len
     
     #TODO as linhas não podem conter 2 (em teoria)    
     def check_cols(self):
         b = []
+        c=0
         for row in zip(*self.board):
-            if row not in b:
+            if row in b:
+                return False 
+            else: 
                 b += [row]
-        return len(b) == self.len
+                c += 1
+        return c == self.len
     
     def check_adjacent(self):
         for i in range(self.len):
             for j in range(self.len-2):
-                if self.board[i][j] != 2 and self.board[i][j] == self.board[i][j+1] == self.board[i][j+2]:
+                if (self.board[i][j] != 2 and self.board[i][j] == self.board[i][j+1] == self.board[i][j+2] or
+                    self.board[j][i] != 2 and self.board[j][i] == self.board[j+1][i] == self.board[j+2][i]):
                     return False
-        for j in range(self.len):
-            for i in range(self.len-2):
-                if self.board[i][j] != 2 and self.board[i][j] == self.board[i+1][j] == self.board[i+2][j]:
-                    return False
+                
         return True
     def check_over_half(self):
-        for line in self.board:
-            count = {0: 0, 1: 0}
-            for el in line:
-                if el in (0,1):
-                    count[el] += 1
+        gtp = self.len//2
+        gto = self.len//2 + 1
+        for i in range(self.len):
+            countr = {0: 0, 1: 0}
+            for j in range(self.len):
+                elr = self.board[i][j]
+                if elr in (0,1):
+                    countr[elr] += 1
             if (self.len % 2 != 0):
-                if (count[1] > self.len//2 + 1 or count[0] > self.len//2 + 1):
+                if (countr[1] > gto or countr[0] > gto):
                     return False
             else:
-                if (count[1] > self.len//2 or count[0] > self.len//2):
+                if (countr[1] > gtp or countr[0] > gtp):
                     return False
-
         for col in list(zip(*self.board)):
             count = {0: 0, 1: 0}
             for el in col:
@@ -144,55 +155,15 @@ class Board:
                     return False
         
         return True
-
-    def check_zero_one(self):
-        for line in self.board:
-            count = {0: 0, 1: 0}
-            for el in line:
-                if (el == 2):
-                    raise ValueError("non full board being zero-one-checked")
-                if el in (0,1):
-                    count[el] += 1
-            if self.len % 2 == 0:
-                if (abs(count[0]-count[1]) > 0):
-                    return False
-            elif (abs(count[0]-count[1]) > 1):
-                return False
-        
-        for col in zip(*self.board):
-            count = {0: 0, 1: 0}
-            for el in col:
-                if (el == 2):
-                    raise ValueError("non full board being zero-one-checked")
-                if el in (0,1):
-                    count[el] += 1
-            if self.len % 2 == 0:
-                if (abs(count[0]-count[1]) > 0):
-                    return False
-            elif (abs(count[0]-count[1]) > 1):
-                return False
-        
-        return True
-
+    
     def generate_possibilities(self):
-        # board = self.board
-        # h = {}
-        # for i, e in enumerate(board):
-        #     count = board[i].count(2)
-        #     h[i] = count
-        
-        # index = -1
-        # minimum = -1
-        # for item in h:
-        #     if (h[item] > minimum and h[item] > 0):
-        #         minimum, index = h[item], item
-        # result = (index, board[index].index(2))
         for row in self.board:
             for el in row:
                 if el == 2:
                     result = (self.board.index(row), row.index(el))
+                    break
 
-        actions = [(result[0], result[1], y) for y in (0,1)]
+        actions = [(result[0], result[1], 0), (result[0], result[1], 1)]
         return actions
     
     def full_board(self):
@@ -227,35 +198,30 @@ class Takuzu(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        board = state.board
-        return 2 not in board 
+        return 2 not in state.board 
     def h(self, node: Node):
-        return bora_crl(node.state)
+        return heuristic(node.state)
     
     def patch_illegal(self, state: TakuzuState, arr: list):
         """Given a list containing actions, it removes the illegal moves."""
-        arr = list(arr)
         temp = ()
         for action in arr:
             res = self.result(state, action)
             board_res = res.board
             if not (board_res.check_over_half()):
                 temp += (action,)
-
             # if not (board_res.check_zero_one()):
                 # temp += (action,)
                 # print(f"removeu: {action} zero_one")
                 # print(f"pq resultado: \n{res.board}")
 
-            if not board_res.check_adjacent() and action in arr:
+            elif not board_res.check_adjacent() and action in arr:
                 temp += (action,)
-
-            if not board_res.check_lines() and action in arr:
-                temp += (action,)
-
-            if not board_res.check_cols() and action in arr:
-                temp += (action,)
-
+            elif 2 not in board_res:
+                if not board_res.check_lines() and action in arr:
+                    temp += (action,)
+                elif not board_res.check_cols() and action in arr:
+                    temp += (action,)
                 
         
         res = []
@@ -265,7 +231,7 @@ class Takuzu(Problem):
         return res
     
     
-def bora_crl(state: TakuzuState):
+def heuristic(state: TakuzuState):
     board = state.board.board
     h = {}
     for i, e in enumerate(board):
@@ -273,9 +239,9 @@ def bora_crl(state: TakuzuState):
         h[i] = count
     
     vals = h.values()
-    minimum = -1
+    minimum = state.board.len
     for val in vals:
-        if (val > minimum and val > 0):
+        if (val < minimum and val > 0):
             minimum = val
     return 1/minimum
 
@@ -285,7 +251,4 @@ if __name__ == "__main__":
     takuzu = Takuzu(board)
 
     goal_node = depth_limited_search(takuzu, limit=board.len**2)
-    try:
-        print(str(goal_node.state.board))
-    except:
-        print('n achou')
+    print(str(goal_node.state.board))
