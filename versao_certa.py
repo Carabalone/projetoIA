@@ -235,7 +235,9 @@ class Takuzu(Problem):
         board = state.board
         return 2 not in board 
     def h(self, node: Node):
-        return bora_crl(node.state)
+        """Função heuristica utilizada para a procura A*."""
+        # TODO
+        pass
     
     def patch_illegal(self, state: TakuzuState, arr: list):
         """Given a list containing actions, it removes the illegal moves."""
@@ -270,23 +272,12 @@ class Takuzu(Problem):
         return res
     
     
-def bora_crl(state: TakuzuState):
-    board = state.board.board
-    h = {}
-    for i, e in enumerate(board):
-        count = board[i].count(2)
-        h[i] = count
-    
-    vals = h.values()
-    minimum = min(vals)
-    return minimum
-
 if __name__ == "__main__":
     # TODO:
     board = Board.parse_instance_from_stdin()
     takuzu = Takuzu(board)
 
-    goal_node = astar_search(takuzu)
+    goal_node = depth_first_tree_search(takuzu)
     try:
         print(str(goal_node.state.board))
     except:

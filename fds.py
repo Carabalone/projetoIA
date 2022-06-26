@@ -2,7 +2,7 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo 35:
+# Grupo xx:
 # 99095 João Furtado
 # 99078 Guilherme Carabalone
 
@@ -18,11 +18,11 @@ from search import (
     astar_search,
     breadth_first_tree_search,
     depth_first_tree_search,
-    depth_limited_search,
     greedy_search,
     recursive_best_first_search,
 )
 
+#COMI O CU DE QUEM TA LENDO
 
 class TakuzuState:
     state_id = 0
@@ -46,7 +46,7 @@ class Board:
         """Devolve o valor na respetiva posição do tabuleiro."""
         return self.board[row][col]
     
-    def adjacent_vertical_numbers(self, row: int, col: int):
+    def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
         lines = self.len
@@ -56,7 +56,7 @@ class Board:
             return None, self.board[row - 1][col]
         return self.board[row + 1][col], self.board[row - 1][col]
 
-    def adjacent_horizontal_numbers(self, row: int, col: int):
+    def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
         cols = self.len
@@ -65,9 +65,22 @@ class Board:
         elif col == cols-1:
             return self.board[row][col - 1], None
         return self.board[row][col - 1], self.board[row][col + 1]
+    
+    def check_adjacent_v2(self):
+        board = self.board
+        print(board)
+        len = self.len
+        for row in range(len):
+            for val in range(len):
+                ver = self.adjacent_vertical_numbers(row, val)
+                hor = self.adjacent_horizontal_numbers(row, val)
+                if all(x==val for x in ver) or all(x==val for x in hor):
+                    return False
+        return True
 
     def __contains__(self, number: int):
         return len([x for x in self.board if number in x]) > 0
+
     @staticmethod
     def parse_instance_from_stdin():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -89,12 +102,10 @@ class Board:
     def __str__(self):
         string = ""
         for row in self.board:
-            for index, element in enumerate(row):
-                if index == self.len-1:
-                    string += str(element) + '\n'
-                else:
-                    string += str(element) + '\t'
-        return string[:-1]
+            for element in row:
+                string += str(element) + '\t'
+            string += '\n'
+        return string
 
     #TODO as linhas não podem conter 2   (em teoria)  
     def check_lines(self):
@@ -135,6 +146,8 @@ class Board:
                 if self.board[i][j] != 2 and self.board[i][j] == self.board[i+1][j] == self.board[i+2][j]:
                     return False
         return True
+
+
     def check_over_half(self):
         for line in self.board:
             count = {0: 0, 1: 0}
@@ -161,6 +174,7 @@ class Board:
                     return False
         
         return True
+
 
     def check_zero_one(self):
         for line in self.board:
@@ -190,14 +204,28 @@ class Board:
                 return False
         
         return True
+    
+    def check_zero_one_v2(self):
+        board_t = numpy.transpose(self.board)
+        for row in self.board:
+            if 2 not in row:
+                ones, zeros = numpy.count_nonzero(row == 1), numpy.count_nonzero(row == 0)
+                if (self.len % 2 == 0 and ones != zeros):
+                    return False
+                if (self.len % 2 != 0 and abs(ones-zeros) != 1):
+                    return False
+        for col in board_t:
+            if 2 not in col:
+                ones, zeros = numpy.count_nonzero(col == 1), numpy.count_nonzero(col == 0)
+                if (self.len % 2 == 0 and ones != zeros):
+                    return False
+                if (self.len % 2 != 0 and abs(ones-zeros) != 1):
+                    return False
+        return True
 
     def generate_possibilities(self):
-        for row in self.board:
-            for el in row:
-                if el == 2:
-                    result = (self.board.index(row), row.index(el))
-
-        actions = [(result[0], result[1], y) for y in (0,1)]
+        result = numpy.argwhere(numpy.array(self.board) == 2)
+        actions = [(x[0], x[1], y) for y in (0,1) for x in result]
         return actions
     
     def full_board(self):
@@ -224,7 +252,7 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         row, col, val = action[0], action[1], action[2]
-        result_board = deepcopy(state.board.board)
+        result_board = numpy.copy(state.board.board)
         result_board[row][col] = val
         return TakuzuState(Board(result_board))
 
@@ -233,35 +261,68 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         board = state.board
-        return 2 not in board 
+        if not board.full_board():
+            print("rejeito pq 2 in board")
+            return False
+        # if (not board.check_zero_one()):
+        #     print("nao passou goal pq check zero one")
+        #     return False
+        # if (not board.check_adjacent_v2()):
+        #     # print("nao passou goal pq check adj")
+        #     return False
+        # if (not board.check_over_half()):
+        #     # print("nao passou goal pq check over half")
+        #     return False
+        # if not board.check_cols():
+        #     # print("nao passou goal pq check cols")
+        #     return False
+        # if (not board.check_lines()):
+        #     # print("nao passou goal pq check lines")
+        #     return False
+        return True
+        #return board.check_over_half() and board.check_lines() and board.check_cols() and board.check_zero_one() and board.check_adjacent()
+
     def h(self, node: Node):
-        return bora_crl(node.state)
+        """Função heuristica utilizada para a procura A*."""
+        # TODO
+        pass
     
     def patch_illegal(self, state: TakuzuState, arr: list):
         """Given a list containing actions, it removes the illegal moves."""
         arr = list(arr)
+        # print(f"patch illegal inicial: {arr}, len {len(arr)}")
+        i=0
         temp = ()
         for action in arr:
+            i+=1
+            # print(f"act: {action}")
             res = self.result(state, action)
             board_res = res.board
-            if not (board_res.check_over_half()):
-                temp += (action,)
-
-            # if not (board_res.check_zero_one()):
-                # temp += (action,)
-                # print(f"removeu: {action} zero_one")
+            # if not (board_res.check_over_half()):
+            #     temp += (action,)
+                # print(f"removeu: {action} over half")
                 # print(f"pq resultado: \n{res.board}")
-
-            if not board_res.check_adjacent() and action in arr:
-                temp += (action,)
-
-            if not board_res.check_lines() and action in arr:
-                temp += (action,)
-
-            if not board_res.check_cols() and action in arr:
-                temp += (action,)
+            # if not board_res.check_lines() and action in arr:
+            #     temp += (action,)
+            #     print(f"removeu: {action} lines")
+            #     print(f"pq resultado: \n{res.board}")
 
                 
+            # if not board_res.check_cols() and action in arr:
+            #     temp += (action,)
+            #     print(f"removeu: {action} row")
+            #     print(f"pq resultado: \n{res.board}")
+
+                
+            # if not board_res.check_adjacent_v2() and action in arr:
+            #     temp += (action,)
+            #     print(f"removeu: {action} adjacent")
+            #     print(f"pq resultado: \n{res.board}")
+            
+            # if not board_res.check_zero_one_v2() and action in arr:
+            #     temp += (action,)
+            #     print(f"removeu: {action} adjacent")
+            #     print(f"pq resultado: \n{res.board}")
         
         res = []
         for item in arr:
@@ -269,25 +330,27 @@ class Takuzu(Problem):
                 res.append(item)
         return res
     
-    
-def bora_crl(state: TakuzuState):
-    board = state.board.board
-    h = {}
-    for i, e in enumerate(board):
-        count = board[i].count(2)
-        h[i] = count
-    
-    vals = h.values()
-    minimum = min(vals)
-    return minimum
+    def search(self):
+        return depth_first_tree_search(self)
+    # TODO: outros metodos da classe
+
 
 if __name__ == "__main__":
     # TODO:
+    # Ler o ficheiro de input de sys.argv[1],
+    # Usar uma técnica de procura para resolver a instância,
+    # Retirar a solução a partir do nó resultante,
+    # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance_from_stdin()
     takuzu = Takuzu(board)
+    #print(type(takuzu.initial))
+    state = TakuzuState(board)
 
-    goal_node = astar_search(takuzu)
-    try:
-        print(str(goal_node.state.board))
-    except:
-        exit(2)
+    res = takuzu.search()
+    if (res):
+        print(res.state.board)
+        # pass
+    else:
+        print("None")
+        # pass
+    #testb = Board([[2,2,1,1],[1,0,2,1],[0,2,1,0],[1,2,1,2]])
