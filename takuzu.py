@@ -6,12 +6,7 @@
 # 99095 João Furtado
 # 99078 Guilherme Carabalone
 
-from copy import deepcopy
 import sys
-import math
-
-import numpy
-# from regex import P
 from search import (
     Problem,
     Node,
@@ -96,35 +91,23 @@ class Board:
                     string += str(element) + '\t'
         return string[:-1]
 
+
     #TODO as linhas não podem conter 2   (em teoria)  
     def check_lines(self):
-        board_w = []
+        b = []
         for row in self.board:
-            if 2 not in row:
-                board_w += [row]
-        u, c = numpy.unique(board_w, axis=0, return_counts=True)
-        return (c==1).all()
+            if row not in b:
+                b += [row]
+        return len(b) == self.len
     
     #TODO as linhas não podem conter 2 (em teoria)    
     def check_cols(self):
-        board_w = []
-        board_t = numpy.transpose(self.board)
-        for col in board_t:
-            if 2 not in col:
-                board_w += [col]
-        u, c = numpy.unique(board_w, axis=0, return_counts=True)
-        return (c==1).all()
+        b = []
+        for row in zip(*self.board):
+            if row not in b:
+                b += [row]
+        return len(b) == self.len
     
-    #TODO ERRADO
-    def check_row_and_col(self):
-        matrix = numpy.matrix(self.board)
-        for i in range(self.len):  # generate pairs
-            for j in range(i + 1, self.len): 
-                if numpy.array_equal(matrix[i], matrix[j]):  # compare rows
-                    if numpy.array_equal(matrix[:,i], matrix[:,j]):  # compare columns
-                        return False
-        return True
-
     def check_adjacent(self):
         for i in range(self.len):
             for j in range(self.len-2):
@@ -192,6 +175,18 @@ class Board:
         return True
 
     def generate_possibilities(self):
+        # board = self.board
+        # h = {}
+        # for i, e in enumerate(board):
+        #     count = board[i].count(2)
+        #     h[i] = count
+        
+        # index = -1
+        # minimum = -1
+        # for item in h:
+        #     if (h[item] > minimum and h[item] > 0):
+        #         minimum, index = h[item], item
+        # result = (index, board[index].index(2))
         for row in self.board:
             for el in row:
                 if el == 2:
@@ -224,7 +219,7 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         row, col, val = action[0], action[1], action[2]
-        result_board = deepcopy(state.board.board)
+        result_board = [[x for x in row] for row in state.board.board] 
         result_board[row][col] = val
         return TakuzuState(Board(result_board))
 
@@ -278,16 +273,19 @@ def bora_crl(state: TakuzuState):
         h[i] = count
     
     vals = h.values()
-    minimum = min(vals)
-    return minimum
+    minimum = -1
+    for val in vals:
+        if (val > minimum and val > 0):
+            minimum = val
+    return 1/minimum
 
 if __name__ == "__main__":
     # TODO:
     board = Board.parse_instance_from_stdin()
     takuzu = Takuzu(board)
 
-    goal_node = astar_search(takuzu)
+    goal_node = depth_limited_search(takuzu, limit=board.len**2)
     try:
         print(str(goal_node.state.board))
     except:
-        exit(2)
+        print('n achou')
