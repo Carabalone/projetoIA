@@ -157,14 +157,13 @@ class Board:
         return True
     
     def generate_possibilities(self):
+        poss = {}
         for row in self.board:
             for el in row:
                 if el == 2:
-                    result = (self.board.index(row), row.index(el))
-                    break
-
-        actions = [(result[0], result[1], 0), (result[0], result[1], 1)]
-        return actions
+                    # {(1,2,1): [1,2], (2,5,0): [2,5], (2,5,1): [2,5]}
+                    poss[self.board.index(row), row.index(el)] = [0,1]
+        return poss
     
     def full_board(self):
         for row in self.board:
@@ -199,36 +198,38 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         return 2 not in state.board 
+    
     def h(self, node: Node):
         return heuristic(node.state)
     
-    def patch_illegal(self, state: TakuzuState, arr: list):
+    def patch_illegal(self, state: TakuzuState, dic: dict):
         """Given a list containing actions, it removes the illegal moves."""
-        temp = ()
-        for action in arr:
-            res = self.result(state, action)
-            board_res = res.board
-            if not (board_res.check_over_half()):
-                temp += (action,)
-            # if not (board_res.check_zero_one()):
-                # temp += (action,)
-                # print(f"removeu: {action} zero_one")
-                # print(f"pq resultado: \n{res.board}")
-
-            elif not board_res.check_adjacent() and action in arr:
-                temp += (action,)
-            elif 2 not in board_res:
-                if not board_res.check_lines() and action in arr:
-                    temp += (action,)
-                elif not board_res.check_cols() and action in arr:
-                    temp += (action,)
-                
-        
-        res = []
-        for item in arr:
-            if item not in temp:
-                res.append(item)
-        return res
+        items = dic.items()
+        for key, val in items:
+            for v in val:
+                res = self.result(state, key + (v, ))
+                board_res = res.board
+                if not (board_res.check_over_half()):
+                        dic[key].remove(v)
+                        
+                elif not board_res.check_adjacent():
+                        dic[key].remove(v)
+                        
+                elif 2 not in board_res:
+                    if not board_res.check_lines():
+                        dic[key].remove(v)
+                    
+                    elif not board_res.check_cols():
+                        dic[key].remove(v)
+        lst = sorted(dic, key=lambda k:len(dic[k]), reverse=False)
+        # print("LISTA: ", lst)
+        # print("DIC LST 0:", dic[lst[0]])
+        if len(lst) == 0:
+            return []
+        if len(dic[lst[0]]) == 0:
+            return []
+        else:
+            return [lst[0] + (dic[lst[0]][y], ) for y in range(len(dic[lst[0]]))]
     
     
 def heuristic(state: TakuzuState):
