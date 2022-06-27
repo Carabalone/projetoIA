@@ -1,0 +1,91 @@
+4
+f                           o                    
+depth_first_tree_search     <  11/  12/  12/<__m>
+breadth_first_tree_search   <  12/  13/  12/<__m>
+depth_limited_search        <   8/   9/   9/<__m>
+astar_search                <  12/  13/  12/<__m>
+greedy_search               <  12/  13/  12/<__m>
+6
+f                           o                    
+depth_first_tree_search     <   8/   9/   8/<__m>
+breadth_first_tree_search   <   8/   9/   8/<__m>
+depth_limited_search        <   7/   8/   8/<__m>
+astar_search                <   8/   9/   8/<__m>
+greedy_search               <   8/   9/   8/<__m>
+8
+f                           o                    
+depth_first_tree_search     < 355/ 356/ 361/<__m>
+breadth_first_tree_search   < 411/ 412/ 411/<__m>
+depth_limited_search        <  98/  99/ 103/<__m>
+astar_search                < 411/ 412/ 411/<__m>
+greedy_search               < 410/ 411/ 411/<__m>
+9
+f                           o                    
+depth_first_tree_search     <  34/  35/  37/<__m>
+breadth_first_tree_search   < 109/ 110/ 109/<__m>
+depth_limited_search        < 107/ 108/ 108/<__m>
+astar_search                < 109/ 110/ 109/<__m>
+greedy_search               < 109/ 110/ 109/<__m>
+10
+f                           o                    
+depth_first_tree_search     < 146/ 147/ 154/<__m>
+breadth_first_tree_search   < 878/ 879/ 878/<__m>
+depth_limited_search        < 787/ 788/ 791/<__m>
+astar_search                < 878/ 879/ 878/<__m>
+greedy_search               < 877/ 878/ 878/<__m>
+12
+f                           o                    
+depth_first_tree_search     < 173/ 174/ 180/<__m>
+breadth_first_tree_search   <1114/1115/1114/<__m>
+depth_limited_search        <1020/1021/1027/<__m>
+astar_search                <1114/1115/1114/<__m>
+greedy_search               <1114/1115/1114/<__m>
+14
+f                           o                    
+depth_first_tree_search     < 184/ 185/ 185/<__m>
+breadth_first_tree_search   < 186/ 187/ 186/<__m>
+depth_limited_search        <  71/  72/  79/<__m>
+astar_search                < 186/ 187/ 186/<__m>
+greedy_search               < 186/ 187/ 186/<__m>
+15
+f                           o                    
+depth_first_tree_search     <  19/  20/  19/<__m>
+breadth_first_tree_search   <  19/  20/  19/<__m>
+depth_limited_search        <  19/  20/  19/<__m>
+astar_search                <  19/  20/  19/<__m>
+greedy_search               <  19/  20/  19/<__m>
+18
+f                           o                    
+depth_first_tree_search     < 246/ 247/ 260/<__m>
+breadth_first_tree_search   < 402/ 403/ 402/<__m>
+depth_limited_search        < 295/ 296/ 306/<__m>
+astar_search                < 402/ 403/ 402/<__m>
+greedy_search               < 402/ 403/ 402/<__m>
+20
+f                           o                    
+depth_first_tree_search     <1487/1488/1499/<__m>
+breadth_first_tree_search   <1621/1622/1621/<__m>
+depth_limited_search        < 318/ 319/ 335/<__m>
+astar_search                <1621/1622/1621/<__m>
+greedy_search               <1621/1622/1621/<__m>
+21
+f                           o                    
+depth_first_tree_search     <1405/1406/1419/<__m>
+breadth_first_tree_search   <3230/3231/3230/<__m>
+depth_limited_search        <2005/2006/2027/<__m>
+astar_search                <3230/3231/3230/<__m>
+greedy_search               <3230/3231/3230/<__m>
+25
+f                           o                    
+depth_first_tree_search     < 652/ 653/ 659/<__m>
+breadth_first_tree_search   < 700/ 701/ 700/<__m>
+depth_limited_search        < 214/ 215/ 226/<__m>
+astar_search                < 700/ 701/ 700/<__m>
+greedy_search               < 700/ 701/ 700/<__m>
+31
+f                           o                    
+depth_first_tree_search     < 186/ 187/ 191/<__m>
+breadth_first_tree_search   < 219/ 220/ 219/<__m>
+depth_limited_search        < 213/ 214/ 217/<__m>
+astar_search                < 219/ 220/ 219/<__m>
+greedy_search               < 219/ 220/ 219/<__m>

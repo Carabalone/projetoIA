@@ -9,7 +9,9 @@
 import sys
 from search import (
     Problem,
+    InstrumentedProblem,
     Node,
+    compare_searchers,
     astar_search,
     breadth_first_tree_search,
     depth_first_tree_search,
@@ -98,26 +100,22 @@ class Board:
     #TODO as linhas não podem conter 2   (em teoria)  
     def check_lines(self):
         b = []
-        c=0
         for row in self.board:
             if row in b:
                 return False
             else:    
                 b += [row]
-                c += 1
-        return c == self.len
+        return len(b) == self.len
     
     #TODO as linhas não podem conter 2 (em teoria)    
     def check_cols(self):
         b = []
-        c=0
         for row in zip(*self.board):
             if row in b:
                 return False 
             else: 
                 b += [row]
-                c += 1
-        return c == self.len
+        return len(b) == self.len
     
     def check_adjacent(self):
         for i in range(self.len):
@@ -157,13 +155,14 @@ class Board:
         return True
     
     def generate_possibilities(self):
-        poss = {}
         for row in self.board:
             for el in row:
                 if el == 2:
-                    # {(1,2,1): [1,2], (2,5,0): [2,5], (2,5,1): [2,5]}
-                    poss[self.board.index(row), row.index(el)] = [0,1]
-        return poss
+                    result = (self.board.index(row), row.index(el))
+                    break
+
+        actions = [(result[0], result[1], 0), (result[0], result[1], 1)]
+        return actions
     
     def full_board(self):
         for row in self.board:
@@ -198,38 +197,36 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         return 2 not in state.board 
-    
     def h(self, node: Node):
         return heuristic(node.state)
     
-    def patch_illegal(self, state: TakuzuState, dic: dict):
+    def patch_illegal(self, state: TakuzuState, arr: list):
         """Given a list containing actions, it removes the illegal moves."""
-        items = dic.items()
-        for key, val in items:
-            for v in val:
-                res = self.result(state, key + (v, ))
-                board_res = res.board
-                if not (board_res.check_over_half()):
-                        dic[key].remove(v)
-                        
-                elif not board_res.check_adjacent():
-                        dic[key].remove(v)
-                        
-                elif 2 not in board_res:
-                    if not board_res.check_lines():
-                        dic[key].remove(v)
-                    
-                    elif not board_res.check_cols():
-                        dic[key].remove(v)
-        lst = sorted(dic, key=lambda k:len(dic[k]), reverse=False)
-        # print("LISTA: ", lst)
-        # print("DIC LST 0:", dic[lst[0]])
-        if len(lst) == 0:
-            return []
-        if len(dic[lst[0]]) == 0:
-            return []
-        else:
-            return [lst[0] + (dic[lst[0]][y], ) for y in range(len(dic[lst[0]]))]
+        temp = ()
+        for action in arr:
+            res = self.result(state, action)
+            board_res = res.board
+            if not (board_res.check_over_half()):
+                temp += (action,)
+            # if not (board_res.check_zero_one()):
+                # temp += (action,)
+                # print(f"removeu: {action} zero_one")
+                # print(f"pq resultado: \n{res.board}")
+
+            elif not board_res.check_adjacent() and action in arr:
+                temp += (action,)
+            elif 2 not in board_res:
+                if not board_res.check_lines() and action in arr:
+                    temp += (action,)
+                elif not board_res.check_cols() and action in arr:
+                    temp += (action,)
+                
+        
+        res = []
+        for item in arr:
+            if item not in temp:
+                res.append(item)
+        return res
     
     
 def heuristic(state: TakuzuState):
@@ -247,9 +244,17 @@ def heuristic(state: TakuzuState):
     return 1/minimum
 
 if __name__ == "__main__":
-    # TODO:
     board = Board.parse_instance_from_stdin()
     takuzu = Takuzu(board)
+    def depth_limited_search_wrapper():
+        limit = board.len**2
+        return depth_limited_search()
+    # TODO:
 
     goal_node = depth_limited_search(takuzu, limit=board.len**2)
-    print(str(goal_node.state.board))
+    print(board.len)
+    compare_searchers([takuzu], "fodase", searchers=[depth_first_tree_search,
+                                                        breadth_first_tree_search,
+                                                        depth_limited_search,
+                                                        astar_search,
+                                                        greedy_search])

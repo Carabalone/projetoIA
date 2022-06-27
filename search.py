@@ -1565,7 +1565,10 @@ def compare_searchers(problems, header,
                                  recursive_best_first_search]):
     def do(searcher, problem):
         p = InstrumentedProblem(problem)
-        searcher(p)
+        if searcher == depth_limited_search:
+            searcher(p, limit = problem.initial.board.len**2)
+        else:
+            searcher(p)
         return p
 
     table = [[name(s)] + [do(s, p) for p in problems] for s in searchers]
